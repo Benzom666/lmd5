@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { DriverDashboardLayout } from "@/components/driver-dashboard-layout"
-import { Card, CardContent } from "@/components/ui/card"
+// import { DriverDashboardLayout } from "@/components/driver-dashboard-layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -32,9 +32,8 @@ import {
   Shuffle,
   Map,
   Hash,
-  Globe,
-  Filter,
-  QrCode,
+  SlidersHorizontal,
+  Send,
 } from "lucide-react"
 
 interface OrderWithActions extends Order {
@@ -667,9 +666,37 @@ export default function DriverOrdersPage() {
   const activeOrders = getOrdersByTab("active")
 
   return (
-    <DriverDashboardLayout
-      title="My Orders"
-      headerActions={
+    // <DriverDashboardLayout
+    //   title="My Orders"
+    //   headerActions={
+    //     <div className="flex items-center space-x-2">
+    //       <Button
+    //         variant="outline"
+    //         size="sm"
+    //         onClick={() => router.push("/driver/scanner")}
+    //         className="flex items-center"
+    //       >
+    //         <Search className="h-4 w-4 mr-1" />
+    //         Scan
+    //       </Button>
+    //       {routeState.isOptimized ? (
+    //         <Button variant="outline" size="sm" onClick={viewOptimizedRoute}>
+    //           <Map className="h-4 w-4 mr-1" />
+    //           Route
+    //         </Button>
+    //       ) : (
+    //         <Button size="sm" onClick={optimizeDeliveryRoute} disabled={isOptimizing}>
+    //           <Shuffle className="h-4 w-4 mr-1" />
+    //           {isOptimizing ? "..." : "Optimize"}
+    //         </Button>
+    //       )}
+    //     </div>
+    //   }
+    // >
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">My Orders</h1>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -677,7 +704,7 @@ export default function DriverOrdersPage() {
             onClick={() => router.push("/driver/scanner")}
             className="flex items-center"
           >
-            <QrCode className="h-4 w-4 mr-1" />
+            <Search className="h-4 w-4 mr-1" />
             Scan
           </Button>
           {routeState.isOptimized ? (
@@ -692,210 +719,199 @@ export default function DriverOrdersPage() {
             </Button>
           )}
         </div>
-      }
-    >
-      <div className="space-y-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Orders</p>
-                  <p className="text-2xl font-bold">{activeOrders.length}</p>
-                </div>
-                <Package className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
+      </div>
 
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Route Status</p>
-                  <p className="text-sm font-medium">{routeState.isOptimized ? "Optimized" : "Standard"}</p>
-                </div>
-                <Navigation className={`h-8 w-8 ${routeState.isOptimized ? "text-green-500" : "text-gray-400"}`} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Enhanced Optimization Status */}
-        {routeState.isOptimized && (
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-green-800">
-                  <CheckCircle className="h-4 w-4" />
-                  <div>
-                    <p className="text-sm font-medium">Route Optimized</p>
-                    <p className="text-xs text-green-600">
-                      {routeState.optimizedOrders.length} stops in optimal sequence
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={resetOptimization}
-                  className="border-green-300 text-green-700 hover:bg-green-100"
-                >
-                  <RotateCcw className="h-4 w-4 mr-1" />
-                  Reset
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Search and Filters */}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search orders..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center"
-                >
-                  <Filter className="h-4 w-4 mr-1" />
-                  Filters
-                </Button>
-
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  {driverLocation && (
-                    <div className="flex items-center gap-1 text-green-600">
-                      <Globe className="h-3 w-3" />
-                      Located
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {showFilters && (
-                <div className="grid grid-cols-2 gap-2">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="assigned">Assigned</SelectItem>
-                      <SelectItem value="in_transit">In Transit</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center justify-between">
+              Active Orders
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{activeOrders.length}</div>
           </CardContent>
         </Card>
 
-        {/* Orders Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="active" className="flex items-center gap-2">
-              <Truck className="h-4 w-4" />
-              Active ({getTabCount("active")})
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              Done ({getTabCount("completed")})
-            </TabsTrigger>
-            <TabsTrigger value="failed" className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              Failed ({getTabCount("failed")})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="active" className="mt-6">
-            <OrdersList
-              orders={getOrdersByTab("active")}
-              loading={loading}
-              onStatusUpdate={updateOrderStatus}
-              onNavigate={(address) =>
-                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
-              }
-              onContact={(phone) => window.open(`tel:${phone}`)}
-              onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
-              onStartPOD={(orderId) => router.push(`/driver/orders/${orderId}/pod`)}
-              onCommunicate={(orderId) => router.push(`/driver/communication/${orderId}`)}
-              showActions={true}
-              isOptimized={routeState.isOptimized}
-            />
-          </TabsContent>
-
-          <TabsContent value="completed" className="mt-6">
-            <OrdersList
-              orders={getOrdersByTab("completed")}
-              loading={loading}
-              onNavigate={(address) =>
-                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
-              }
-              onContact={(phone) => window.open(`tel:${phone}`)}
-              onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
-              onViewPOD={(orderId) => router.push(`/driver/orders/${orderId}/pod-view`)}
-              showActions={false}
-              isOptimized={routeState.isOptimized}
-            />
-          </TabsContent>
-
-          <TabsContent value="failed" className="mt-6">
-            <OrdersList
-              orders={getOrdersByTab("failed")}
-              loading={loading}
-              onNavigate={(address) =>
-                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
-              }
-              onContact={(phone) => window.open(`tel:${phone}`)}
-              onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
-              onRetry={(orderId) => updateOrderStatus(orderId, "assigned", "Order retry requested by driver")}
-              showActions={false}
-              isOptimized={routeState.isOptimized}
-            />
-          </TabsContent>
-        </Tabs>
-
-        {/* Enhanced Delivery Map Modal */}
-        {showMap && (
-          <OptimizedDeliveryMap
-            orders={routeState.optimizedOrders.length > 0 ? routeState.optimizedOrders : getOrdersByTab("active")}
-            driverLocation={driverLocation}
-            onClose={() => setShowMap(false)}
-            isOptimized={routeState.isOptimized}
-            persistentRoute={routeState.persistentRoute}
-          />
-        )}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center justify-between">
+              Route Status
+              <Send className="h-4 w-4 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{routeState.isOptimized ? "Optimized" : "Standard"}</div>
+          </CardContent>
+        </Card>
       </div>
-    </DriverDashboardLayout>
+
+      {/* Enhanced Optimization Status */}
+      {routeState.isOptimized && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-green-800">
+                <CheckCircle className="h-4 w-4" />
+                <div>
+                  <p className="text-sm font-medium">Route Optimized</p>
+                  <p className="text-xs text-green-600">
+                    {routeState.optimizedOrders.length} stops in optimal sequence
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetOptimization}
+                className="border-green-300 text-green-700 hover:bg-green-100 bg-transparent"
+              >
+                <RotateCcw className="h-4 w-4 mr-1" />
+                Reset
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search orders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            className="w-full justify-start text-left font-normal bg-transparent"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="mr-2 h-4 w-4" />
+            Filters
+            {driverLocation && (
+              <Badge variant="secondary" className="ml-auto bg-slate-700 text-slate-300">
+                <div className="w-2 h-2 rounded-full bg-green-400 mr-1.5" />
+                Located
+              </Badge>
+            )}
+          </Button>
+          {showFilters && (
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="assigned">Assigned</SelectItem>
+                  <SelectItem value="in_transit">In Transit</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Orders Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="active" className="flex items-center gap-2">
+            <Truck className="h-4 w-4" />
+            Active ({getTabCount("active")})
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Done ({getTabCount("completed")})
+          </TabsTrigger>
+          <TabsTrigger value="failed" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Failed ({getTabCount("failed")})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active" className="mt-6">
+          <OrdersList
+            orders={getOrdersByTab("active")}
+            loading={loading}
+            onStatusUpdate={updateOrderStatus}
+            onNavigate={(address) =>
+              window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
+            }
+            onContact={(phone) => window.open(`tel:${phone}`)}
+            onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
+            onStartPOD={(orderId) => router.push(`/driver/orders/${orderId}/pod`)}
+            onCommunicate={(orderId) => router.push(`/driver/communication/${orderId}`)}
+            showActions={true}
+            isOptimized={routeState.isOptimized}
+          />
+        </TabsContent>
+
+        <TabsContent value="completed" className="mt-6">
+          <OrdersList
+            orders={getOrdersByTab("completed")}
+            loading={loading}
+            onNavigate={(address) =>
+              window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
+            }
+            onContact={(phone) => window.open(`tel:${phone}`)}
+            onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
+            onViewPOD={(orderId) => router.push(`/driver/orders/${orderId}/pod-view`)}
+            showActions={false}
+            isOptimized={routeState.isOptimized}
+          />
+        </TabsContent>
+
+        <TabsContent value="failed" className="mt-6">
+          <OrdersList
+            orders={getOrdersByTab("failed")}
+            loading={loading}
+            onNavigate={(address) =>
+              window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`)
+            }
+            onContact={(phone) => window.open(`tel:${phone}`)}
+            onViewDetails={(orderId) => router.push(`/driver/orders/${orderId}`)}
+            onRetry={(orderId) => updateOrderStatus(orderId, "assigned", "Order retry requested by driver")}
+            showActions={false}
+            isOptimized={routeState.isOptimized}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* Enhanced Delivery Map Modal */}
+      {showMap && (
+        <OptimizedDeliveryMap
+          orders={routeState.optimizedOrders.length > 0 ? routeState.optimizedOrders : getOrdersByTab("active")}
+          driverLocation={driverLocation}
+          onClose={() => setShowMap(false)}
+          isOptimized={routeState.isOptimized}
+          persistentRoute={routeState.persistentRoute}
+        />
+      )}
+    </div>
+    // </DriverDashboardLayout>
   )
 
   function OrdersList({
